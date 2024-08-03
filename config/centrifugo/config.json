@@ -1,0 +1,11 @@
+{
+  "log_level": "info",
+  "allowed_origins": ["http://localhost:8080", "http://localhost:3000"],
+  "token_hmac_secret_key": "secret_base64_key_for_jwt_centrifugo_connection",
+  "api_key": "api_key",
+  "allow_user_limited_channels": "true",
+  "allow_subscribe_for_client": "true",
+  "namespaces": [{
+    "name": "personal"
+  }]
+}

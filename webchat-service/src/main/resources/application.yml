@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/webchat
+    driver-class-name: org.postgresql.Driver
+    username: sanity
+    password: wordpass
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+      open-in-view: false
+      generate-ddl: true
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          filter:
+            CommonsRequestLoggingFilter: DEBUG
+application:
+  centrifugo:
+    base-url: http://centrifugo:8000
+    api-key: api_key
+  security:
+    jwt:
+      # secret_base64_key_for_jwt_centrifugo_connection
+#      key: c2VjcmV0X2Jhc2U2NF9rZXlfZm9yX2p3dF9jZW50cmlmdWdvX2Nvbm5lY3Rpb24=
+      key: secret_base64_key_for_jwt_centrifugo_connection
+      ttl-min: 2
