@@ -1,4 +1,5 @@
 FROM openjdk:21-slim AS build
+RUN apt-get update && apt-get install -y wget
 WORKDIR /app
 COPY . service/
 RUN cd service && chmod +x ./mvnw && ./mvnw clean package -DskipTests -DskipITs
@@ -16,4 +17,4 @@ COPY --from=builder app/snapshot-dependencies/ ./
 COPY --from=builder app/application/ ./
 
 EXPOSE 8080
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "org.springframework.boot.loader.launch.JarLauncher"]

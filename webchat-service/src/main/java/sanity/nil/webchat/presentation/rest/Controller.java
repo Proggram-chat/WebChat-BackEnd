@@ -1,8 +1,13 @@
 package sanity.nil.webchat.presentation.rest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import sanity.nil.webchat.application.dto.*;
 import sanity.nil.webchat.application.interfaces.repository.ChatRepository;
 import sanity.nil.webchat.application.interfaces.repository.MemberRepository;
@@ -14,7 +19,8 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/webchat")
+@RequestMapping("/api/webchat/v1")
+@Slf4j
 @CrossOrigin
 @RequiredArgsConstructor
 public class Controller {
@@ -31,13 +37,23 @@ public class Controller {
     }
 
     @PostMapping("/chat/join")
-    public ResponseEntity<String> joinChat(
+    public ResponseEntity<Void> joinChat(
             @RequestBody JoinChatDTO dto
     ) {
-        String response = chatFacade.joinChat(dto) ? "Success" : "Fail";
+        chatFacade.joinChat(dto);
         return ResponseEntity
                 .status(201)
-                .body(response);
+                .body(null);
+    }
+
+    @PostMapping("/chat/leave")
+    public ResponseEntity<Void> leaveChat(
+            @RequestBody LeaveChatDTO dto
+    ) {
+        chatFacade.leaveChat(dto);
+        return ResponseEntity
+                .status(204)
+                .body(null);
     }
 
     @GetMapping("/member/chat/{id}")
@@ -86,5 +102,28 @@ public class Controller {
         return ResponseEntity
                 .status(200)
                 .body(chatFacade.getToken(tokenType, channel));
+    }
+
+    @PostMapping("/upload")
+    public Mono<ResponseEntity<UploadedFilesDTO>> uploadFiles(
+            @RequestPart("files") Flux<FilePart> files
+    ) {
+        return chatFacade.uploadFiles(files)
+                .map(response -> ResponseEntity.status(201).body(response));
+                // TODO: add rest controller advice to handle exceptions
+//                .onErrorResume(e -> {
+//                    log.error("File upload failed", e);
+//                    return Mono.just(ResponseEntity.status(500).body("Upload failed"));
+//                });
+    }
+
+
+    @GetMapping(value = "/file/url")
+    public ResponseEntity<FileURLDTO> getFileURL(
+            @RequestParam("fileId") String fileID
+    ) {
+        return ResponseEntity
+                .status(200)
+                .body(chatFacade.fileUrl(fileID));
     }
 }

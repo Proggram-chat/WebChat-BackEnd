@@ -13,9 +13,8 @@ public class MessageCreateDTO extends CentrifugoPayloadBase {
     public UUID senderID;
     public String content;
 
-    public MessageCreateDTO(PayloadType payloadType,
-                            UUID id, UUID chatID, UUID senderID, String content) {
-        super(payloadType);
+    public MessageCreateDTO(UUID id, UUID chatID, UUID senderID, String content) {
+        super(PayloadType.MESSAGE_CREATED);
         this.id = id;
         this.chatID = chatID;
         this.senderID = senderID;

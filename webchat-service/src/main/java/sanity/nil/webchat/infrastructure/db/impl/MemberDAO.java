@@ -18,4 +18,13 @@ public interface MemberDAO extends JpaRepository<MemberModel, UUID> {
                     "WHERE cm.chat_id = :chatID ", nativeQuery = true
     )
     List<MemberModel> getAllByChatID(@Param("chatID") UUID chatID);
+
+    @Query(
+            value = "SELECT m.id " +
+                    "FROM members m " +
+                    "LEFT JOIN chat_members cm " +
+                    "ON m.id = cm.member_id " +
+                    "WHERE cm.chat_id = :chatID ", nativeQuery = true
+    )
+    List<UUID> getAllMemberIDsByChatID(@Param("chatID") UUID chatID);
 }

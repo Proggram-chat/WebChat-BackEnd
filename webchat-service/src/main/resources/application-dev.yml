@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/webchat
+application:
+  centrifugo:
+    base-url: http://localhost:8000
+  minio:
+    host: localhost
+    port: 9000
+    secure: false
+  antivirus:
+    enabled: true

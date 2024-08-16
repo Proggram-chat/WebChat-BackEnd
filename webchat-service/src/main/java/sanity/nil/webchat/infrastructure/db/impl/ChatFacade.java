@@ -2,8 +2,13 @@ package sanity.nil.webchat.infrastructure.db.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
-import sanity.nil.webchat.application.consts.PayloadType;
+import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import sanity.nil.webchat.application.consts.TokenType;
 import sanity.nil.webchat.application.dto.*;
 import sanity.nil.webchat.application.interfaces.repository.ChatRepository;
@@ -13,12 +18,12 @@ import sanity.nil.webchat.infrastructure.channels.dto.CentrifugoBroadcastPayload
 import sanity.nil.webchat.infrastructure.channels.impl.CentrifugoHelper;
 import sanity.nil.webchat.infrastructure.db.model.MemberModel;
 import sanity.nil.webchat.infrastructure.security.TokenHelper;
+import sanity.nil.webchat.infrastructure.storage.s3.FileData;
+import sanity.nil.webchat.infrastructure.storage.s3.FileStorage;
 
+import java.io.InputStream;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,13 +36,54 @@ public class ChatFacade {
     private final MessageRepository messageRepository;
     private final CentrifugoHelper centrifugoHelper;
     private final TokenHelper tokenHelper;
+    private final FileStorage fileStorage;
 
-    public boolean joinChat(JoinChatDTO joinChatDTO) {
-        try {
-            return chatRepository.addUser(joinChatDTO.memberID(), joinChatDTO.chatID()) != null;
-        } catch (Exception e) {
-            return false;
-        }
+    @Transactional
+    public void joinChat(JoinChatDTO joinChatDTO) {
+        MemberModel joinedMember = memberRepository.getByMemberID(joinChatDTO.memberID())
+                .orElseThrow(
+                        () -> new NoSuchElementException("No member found with id " + joinChatDTO.memberID())
+                );
+        chatRepository.addMember(joinChatDTO.memberID(), joinChatDTO.chatID());
+        List<UUID> members = memberRepository.getMemberIdsByChatID(joinChatDTO.chatID());
+        List<String> channels = members.stream()
+                .map(e -> "personal:" + e.toString()).toList();
+        memberRepository.addMemberToChat(joinChatDTO.memberID(), joinChatDTO.chatID());
+        centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
+                new OnJoinMemberDTO(joinChatDTO.memberID(), joinedMember.getNickname()),
+                "member_joined_" + joinChatDTO.memberID())
+        ).subscribe(
+                res -> {
+                    log.info("A user {} joined chat {}, successfully handed to centrifugo {}",
+                            joinChatDTO.memberID(), joinChatDTO.chatID(), res);
+                }, err -> {
+                    log.error("Error sending a join user event to centrifugo {}", err.getMessage());
+                }
+        );
+
+    }
+
+    @Transactional
+    public void leaveChat(LeaveChatDTO leaveChatDTO) {
+        MemberModel leftMember = memberRepository.getByMemberID(leaveChatDTO.memberID())
+                .orElseThrow(
+                        () -> new NoSuchElementException("No member found with id " + leaveChatDTO.memberID())
+                );
+        List<UUID> members = memberRepository.getMemberIdsByChatID(leaveChatDTO.chatID());
+        List<String> channels = members.stream()
+                .map(e -> "personal:" + e.toString()).toList();
+        memberRepository.removeMemberFromChat(leaveChatDTO.memberID(), leaveChatDTO.chatID());
+        centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
+                new OnLeaveMemberDTO(leaveChatDTO.memberID(), leftMember.getNickname()),
+                "member_left_" + leaveChatDTO.memberID())
+        ).subscribe(
+                res -> {
+                    log.info("A user {} left chat {}, successfully handed to centrifugo {}",
+                            leaveChatDTO.memberID(), leaveChatDTO.chatID(), res);
+                }, err -> {
+                    log.error("Error sending a leave user event to centrifugo {}", err.getMessage());
+                }
+        );
     }
 
     public List<ChatMemberDTO> getChatMembers(UUID chatID) {
@@ -57,6 +103,7 @@ public class ChatFacade {
         return new PagedChatMessagesDTO(messages, totalPages, filters.offset+1);
     }
 
+    @Transactional
     public UUID sendMessage(OnSendMessageDTO messageDTO) {
         UUID newMessageID = UUID.randomUUID();
         List<UUID> memberIDs = memberRepository.getAllByChatID(messageDTO.chatID()).stream()
@@ -64,7 +111,7 @@ public class ChatFacade {
         List<String> channels = memberIDs.stream().map(e -> "personal:" + e.toString()).toList();
         messageRepository.save(newMessageID, messageDTO.chatID(), messageDTO.authorID(), messageDTO.content(), ZonedDateTime.now());
         centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
-                new MessageCreateDTO(PayloadType.MESSAGE_CREATED, newMessageID, messageDTO.chatID(), messageDTO.authorID(), messageDTO.content()),
+                new MessageCreateDTO(newMessageID, messageDTO.chatID(), messageDTO.authorID(), messageDTO.content()),
                 "message-" + messageDTO.authorID().toString())
         ).subscribe(
                 res -> {
@@ -100,4 +147,21 @@ public class ChatFacade {
 
         return tokenHelper.createToken(claims);
     }
+
+    public Mono<UploadedFilesDTO> uploadFiles(Flux<FilePart> files) {
+        return files
+                .flatMap(filePart -> {
+                    log.info("Received file: {}", filePart.filename());
+                    return Mono.fromCallable(() -> new FileData(filePart))
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .flatMap(fileData -> fileStorage.saveFile(fileData, filePart.filename(), "videos"));
+                })
+                .collectList()
+                .map(UploadedFilesDTO::new);
+    }
+
+    public FileURLDTO fileUrl(String fileID) {
+        return new FileURLDTO(fileStorage.getFileURL(fileID, "videos"));
+    }
+
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import sanity.nil.webchat.application.dto.CreateChatDTO;
 import sanity.nil.webchat.application.dto.MemberChatsDTO;
 import sanity.nil.webchat.application.interfaces.repository.ChatRepository;
+import sanity.nil.webchat.infrastructure.db.model.ChatMemberID;
 import sanity.nil.webchat.infrastructure.db.model.ChatModel;
 import sanity.nil.webchat.infrastructure.db.model.MemberModel;
 
@@ -17,6 +18,7 @@ public class ChatRepositoryImpl implements ChatRepository {
 
     private final ChatDAO chatDAO;
     private final MemberDAO memberDAO;
+    private final ChatMemberDAO chatMemberDAO;
 
     @Override
     public UUID createChat(CreateChatDTO dto) {
@@ -41,7 +43,7 @@ public class ChatRepositoryImpl implements ChatRepository {
 
     @Transactional
     @Override
-    public UUID addUser(UUID memberID, UUID chatID) {
+    public void addMember(UUID memberID, UUID chatID) {
         Optional<ChatModel> maybeChat = chatDAO.findById(chatID);
         if (maybeChat.isEmpty()) {
             throw new NoSuchElementException("No member with ID: " + chatID);
@@ -51,6 +53,12 @@ public class ChatRepositoryImpl implements ChatRepository {
             throw new NoSuchElementException("No member with ID: " + memberID);
         }
         maybeChat.get().addMember(maybeMember.get());
-        return chatDAO.save(maybeChat.get()).getChatID();
+        chatDAO.save(maybeChat.get()).getChatID();
+    }
+
+    @Transactional
+    @Override
+    public void deleteMember(UUID memberID, UUID chatID) {
+        chatMemberDAO.deleteById(new ChatMemberID(chatID, memberID));
     }
 }
