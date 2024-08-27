@@ -1,0 +1,24 @@
+version: 3
+
+tasks:
+
+  run-prod:
+    cmds:
+      - docker-compose -f docker-compose.prod.yml up -d --build
+    silent: false
+
+  down-prod:
+    cmds:
+      - docker-compose -f docker-compose.prod.yml down -v --remove-orphans
+    silent: false
+
+  up-dev:
+    cmds:
+      - docker-compose -f docker-compose.dev.yml up -d --build
+    silent: false
+
+  down-dev:
+    cmds:
+      - docker-compose -f docker-compose.dev.yml down -v --remove-orphans
+    silent: false
+
