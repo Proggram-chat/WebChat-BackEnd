@@ -1,5 +1,4 @@
 FROM openjdk:21-slim AS build
-RUN apt-get update && apt-get install -y wget
 WORKDIR /app
 
 COPY pom.xml .
@@ -12,6 +11,7 @@ COPY --from=build /app/service/target/webchat-service-0.0.1-SNAPSHOT.jar /app/we
 RUN java -Djarmode=layertools -jar webchat-service.jar extract
 
 FROM openjdk:21-slim
+RUN apt-get update && apt-get install -y wget
 WORKDIR /app
 COPY --from=builder app/dependencies/ ./
 COPY --from=builder app/spring-boot-loader/ ./
