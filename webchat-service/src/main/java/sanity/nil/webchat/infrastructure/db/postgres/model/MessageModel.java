@@ -1,4 +1,4 @@
-package sanity.nil.webchat.infrastructure.db.model;
+package sanity.nil.webchat.infrastructure.db.postgres.model;
 
 import jakarta.persistence.*;
 import lombok.*;

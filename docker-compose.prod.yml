@@ -93,8 +93,10 @@ services:
   webchat-service:
     hostname: webchat-service
     build:
-      context: webchat-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: webchat-service/Dockerfile
+    env_file:
+      - ./webchat-service/.env
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
       interval: 20s
@@ -121,8 +123,3 @@ volumes:
   minio.data3-2: { }
   minio.data4-1: { }
   minio.data4-2: { }
-
-#networks:
-#  shared-network:
-#    driver: bridge
-#    name: shared-network

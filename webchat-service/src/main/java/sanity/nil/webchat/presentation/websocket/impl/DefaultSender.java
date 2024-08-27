@@ -1,18 +1,16 @@
 package sanity.nil.webchat.presentation.websocket.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import sanity.nil.webchat.application.consts.MessageStatus;
 import sanity.nil.webchat.application.dto.MessageSentDTO;
 import sanity.nil.webchat.application.interfaces.repository.MemberRepository;
 import sanity.nil.webchat.application.interfaces.storage.MemberSession;
-import sanity.nil.webchat.infrastructure.db.model.MemberModel;
+import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
 import sanity.nil.webchat.infrastructure.storage.keyval.KeyValMemberSessionStorage;
 import sanity.nil.webchat.infrastructure.storage.keyval.WebsocketMemberSession;
 import sanity.nil.webchat.presentation.websocket.SendMessage;

@@ -1,4 +1,4 @@
-package sanity.nil.webchat.infrastructure.db.impl;
+package sanity.nil.webchat.infrastructure.db.postgres.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -7,9 +7,12 @@ import org.springframework.stereotype.Repository;
 import sanity.nil.webchat.application.dto.ChatMessageDTO;
 import sanity.nil.webchat.application.dto.MessageFiltersDTO;
 import sanity.nil.webchat.application.interfaces.repository.MessageRepository;
-import sanity.nil.webchat.infrastructure.db.model.ChatModel;
-import sanity.nil.webchat.infrastructure.db.model.MemberModel;
-import sanity.nil.webchat.infrastructure.db.model.MessageModel;
+import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatDAO;
+import sanity.nil.webchat.infrastructure.db.postgres.dao.MemberDAO;
+import sanity.nil.webchat.infrastructure.db.postgres.dao.MessageDAO;
+import sanity.nil.webchat.infrastructure.db.postgres.model.ChatModel;
+import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
+import sanity.nil.webchat.infrastructure.db.postgres.model.MessageModel;
 
 import java.time.ZonedDateTime;
 import java.util.List;

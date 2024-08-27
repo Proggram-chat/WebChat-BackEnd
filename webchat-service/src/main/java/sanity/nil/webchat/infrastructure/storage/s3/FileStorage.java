@@ -4,14 +4,19 @@ import io.minio.BucketExistsArgs;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.PutObjectArgs;
+import io.minio.errors.ErrorResponseException;
 import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import sanity.nil.webchat.application.exceptions.StorageException;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -21,8 +26,7 @@ public class FileStorage {
 
     private final MinioConfig minio;
 
-    public String createBucketIfNotExists(String... args) {
-        String bucketName = "videos";
+    public String createBucketIfNotExists(String bucketName) {
         try {
             if (!minio.getClient().bucketExists(BucketExistsArgs.builder()
                     .bucket(bucketName)
@@ -39,21 +43,34 @@ public class FileStorage {
         return bucketName;
     }
 
-    public Mono<String> saveFile(FileData file, String name, String bucketName) {
+    public Mono<String> saveFile(FileData fileData) {
         return Mono.fromCallable(() -> {
-            try {
+            try (FileInputStream fileInputStream = new FileInputStream(fileData.file)) {
+
+                // Check if bucket exists, if not create it
                 if (!minio.getClient().bucketExists(BucketExistsArgs.builder()
-                        .bucket(bucketName)
+                        .bucket(fileData.destinationDir)
                         .build())) {
-                    createBucketIfNotExists();
+                    createBucketIfNotExists(fileData.destinationDir);
                 }
+
+                // Upload file
                 minio.getClient().putObject(PutObjectArgs.builder()
-                        .bucket(bucketName)
-                        .object(name)
-                        .stream(file.content, file.size, -1)
-                        .contentType(file.contentType)
+                        .bucket(fileData.destinationDir)
+                        .object(fileData.filename)
+                        .stream(fileInputStream, fileData.size, -1)
+                        .contentType(fileData.contentType)
                         .build());
-                return name;
+
+                return fileData.filename;
+            } catch (ErrorResponseException e) {
+                String detailedMessage = e.getMessage();
+                try (Response response = e.response()) {
+                    if (response != null) {
+                        detailedMessage = response.message();
+                    }
+                }
+                throw new StorageException(detailedMessage);
             } catch (Exception e) {
                 throw new StorageException(e.getMessage());
             }

@@ -1,42 +1,31 @@
 package sanity.nil.webchat.infrastructure.storage.s3;
 
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Flux;
-import java.io.InputStream;
-import java.util.List;
+
+import java.io.File;
 
 @AllArgsConstructor
 public class FileData {
 
     public String filename;
-    public InputStream content;
+    public File file;
     public String contentType;
+    public String destinationDir;
+    public boolean toUpload;
     public long size;
 
-    public FileData(FilePart filePart) {
-        this.filename = filePart.filename();
-        List<String> contentTypes = filePart.headers().get("Content-Type");
-        if (CollectionUtils.isEmpty(contentTypes)) {
-            throw new IllegalArgumentException("Content-Type header is missing");
-        }
-        this.contentType = contentTypes.getFirst();
+    public FileData(String filename, File file, String contentType, String destinationDir, long size) {
+        this.filename = filename;
+        this.file = file;
+        this.contentType = contentType;
+        this.destinationDir = destinationDir;
+        this.toUpload = true;
+        this.size = size;
+    }
 
-        Flux<DataBuffer> contentFlux = filePart.content();
-        DataBuffer dataBuffer = DataBufferUtils.join(contentFlux).block();
-        if (dataBuffer != null) {
-            this.size = dataBuffer.readableByteCount();
-            this.content = dataBuffer.asInputStream();
-            DataBufferUtils.release(dataBuffer);
-        } else {
-            this.size = 0;
-            this.content = InputStream.nullInputStream();
-        }
+    public FileData(String filename) {
+        this.filename = filename;
+        this.toUpload = false;
     }
 
 }

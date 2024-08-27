@@ -19,19 +19,19 @@ public class MinioConfig {
 
     private MinioClient minioClient;
 
-    @Value("${application.minio.host}")
+    @Value("${application.storage.minio.host}")
     private String host;
 
-    @Value("${application.minio.port}")
+    @Value("${application.storage.minio.port}")
     private Integer port;
 
-    @Value("${application.minio.access-key}")
+    @Value("${application.storage.minio.access-key}")
     private String accessKey;
 
-    @Value("${application.minio.secret-key}")
+    @Value("${application.storage.minio.secret-key}")
     private String secretKey;
 
-    @Value("${application.minio.secure}")
+    @Value("${application.storage.minio.secure}")
     private Boolean secure;
 
     @PostConstruct
@@ -40,13 +40,13 @@ public class MinioConfig {
                 .endpoint(host, port, secure)
                 .credentials(accessKey, secretKey)
                 .build();
-        try {
-            checkMinioHealth();
-            log.info("Minio is accessible and alive at url {}:{}", host, port);
-        } catch (StorageException e) {
-            log.error("Failed to connect to Minio: {}", e.getMessage());
-            throw new StorageException("Failed to connect to Minio: " + e.getMessage());
-        }
+//        try {
+//            checkMinioHealth();
+//            log.info("Minio is accessible and alive at url {}:{}", host, port);
+//        } catch (StorageException e) {
+//            log.error("Failed to connect to Minio: {}", e.getMessage());
+//            throw new StorageException("Failed to connect to Minio: " + e.getMessage());
+//        }
     }
 
     private void checkMinioHealth() {

@@ -1,7 +1,9 @@
 FROM openjdk:21-slim AS build
 RUN apt-get update && apt-get install -y wget
 WORKDIR /app
-COPY . service/
+
+COPY pom.xml .
+COPY webchat-service/ service/
 RUN cd service && chmod +x ./mvnw && ./mvnw clean package -DskipTests -DskipITs
 
 FROM openjdk:21-slim as builder

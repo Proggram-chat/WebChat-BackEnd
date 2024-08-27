@@ -1,12 +1,15 @@
-package sanity.nil.webchat.infrastructure.db.impl;
+package sanity.nil.webchat.infrastructure.db.postgres.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import sanity.nil.webchat.application.interfaces.repository.MemberRepository;
-import sanity.nil.webchat.infrastructure.db.model.ChatMemberID;
-import sanity.nil.webchat.infrastructure.db.model.ChatMemberModel;
-import sanity.nil.webchat.infrastructure.db.model.ChatModel;
-import sanity.nil.webchat.infrastructure.db.model.MemberModel;
+import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatDAO;
+import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatMemberDAO;
+import sanity.nil.webchat.infrastructure.db.postgres.dao.MemberDAO;
+import sanity.nil.webchat.infrastructure.db.postgres.model.ChatMemberID;
+import sanity.nil.webchat.infrastructure.db.postgres.model.ChatMemberModel;
+import sanity.nil.webchat.infrastructure.db.postgres.model.ChatModel;
+import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -48,13 +51,12 @@ public class MemberRepositoryImpl implements MemberRepository {
 
     @Override
     public void addMemberToChat(UUID memberID, UUID chatID) {
-        ChatMemberID id = new ChatMemberID(chatID, memberID);
         ChatModel chat = chatDAO.findById(chatID).orElseThrow(
                 () -> new NoSuchElementException("No chat to add a member exists")
         );
         MemberModel memberToAdd = memberDAO.findById(memberID).orElseThrow(
                 () -> new NoSuchElementException("No such member exists to add")
         );
-        chatMemberDAO.save(new ChatMemberModel(id, chat, memberToAdd, false));
+        chatMemberDAO.save(new ChatMemberModel(chat, memberToAdd, false));
     }
 }

@@ -2,7 +2,6 @@ package sanity.nil.webchat.presentation.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
@@ -11,10 +10,8 @@ import reactor.core.publisher.Mono;
 import sanity.nil.webchat.application.dto.*;
 import sanity.nil.webchat.application.interfaces.repository.ChatRepository;
 import sanity.nil.webchat.application.interfaces.repository.MemberRepository;
-import sanity.nil.webchat.infrastructure.db.impl.ChatFacade;
-import sanity.nil.webchat.infrastructure.db.model.MemberModel;
+import sanity.nil.webchat.application.interactor.ChatFacade;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -110,20 +107,16 @@ public class Controller {
     ) {
         return chatFacade.uploadFiles(files)
                 .map(response -> ResponseEntity.status(201).body(response));
-                // TODO: add rest controller advice to handle exceptions
-//                .onErrorResume(e -> {
-//                    log.error("File upload failed", e);
-//                    return Mono.just(ResponseEntity.status(500).body("Upload failed"));
-//                });
     }
 
 
-    @GetMapping(value = "/file/url")
-    public ResponseEntity<FileURLDTO> getFileURL(
-            @RequestParam("fileId") String fileID
+    @PostMapping(value = "/file/search")
+    public ResponseEntity<List<FileURLDTO>> getFileURLs(
+            @RequestBody FileSearchDTO fileSearchDTO
+
     ) {
         return ResponseEntity
                 .status(200)
-                .body(chatFacade.fileUrl(fileID));
+                .body(chatFacade.fileSearch(fileSearchDTO));
     }
 }

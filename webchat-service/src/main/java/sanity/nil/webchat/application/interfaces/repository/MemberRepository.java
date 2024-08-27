@@ -1,6 +1,6 @@
 package sanity.nil.webchat.application.interfaces.repository;
 
-import sanity.nil.webchat.infrastructure.db.model.MemberModel;
+import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
 
 import java.util.List;
 import java.util.Optional;

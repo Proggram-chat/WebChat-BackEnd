@@ -8,9 +8,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
+#    show-sql: true
     properties:
-      hibernate.format_sql: true
+      hibernate.format_sql: false
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
       open-in-view: false
@@ -22,15 +22,21 @@ logging:
         web:
           filter:
             CommonsRequestLoggingFilter: DEBUG
+        transaction: TRACE
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql: TRACE
 application:
-  centrifugo:
-    api-key: api_key
+  channels:
+    centrifugo:
+      api-key: api_key
   security:
     jwt:
-      # secret_base64_key_for_jwt_centrifugo_connection
-#      key: c2VjcmV0X2Jhc2U2NF9rZXlfZm9yX2p3dF9jZW50cmlmdWdvX2Nvbm5lY3Rpb24=
-      key: secret_base64_key_for_jwt_centrifugo_connection
+      key: ${CENTRIFUGO_JWT_KEY}
       ttl-min: 2
-  minio:
-    access-key: Q3AM3UQ867SPQQA43P2F
-    secret-key: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+  storage:
+    minio:
+      access-key: Q3AM3UQ867SPQQA43P2F
+      secret-key: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG

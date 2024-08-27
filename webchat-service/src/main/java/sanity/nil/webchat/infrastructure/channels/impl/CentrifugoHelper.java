@@ -19,9 +19,9 @@ import java.time.Duration;
 @Component
 public class CentrifugoHelper {
 
-    @Value("${application.centrifugo.base-url}")
+    @Value("${application.channels.centrifugo.base-url}")
     private String baseURL;
-    @Value("${application.centrifugo.api-key}")
+    @Value("${application.channels.centrifugo.api-key}")
     private String apiKey;
     private WebClient webClient;
 

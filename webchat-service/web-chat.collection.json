@@ -1,0 +1,302 @@
+{
+	"info": {
+		"_postman_id": "1222fb26-9bae-48dc-a455-236d9b2a6d5b",
+		"name": "web-chat-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23495307"
+	},
+	"item": [
+		{
+			"name": "CreateChat",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"creator_id\": \"f5ccbd0f-4795-4cf8-8a12-eb356e338b5d\",\r\n    \"name\": \"test1\",\r\n    \"description\": \"test1desc\",\r\n    \"type\": \"GROUP\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/webchat/chat",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"webchat",
+						"chat"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MessagesSearch",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"limit\": 5,\r\n    \"offset\": 1,\r\n    \"chat_id\": \"d1e5f99d-758f-4ebc-8b9d-48cb85b1b153\",\r\n    \"message \": \"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/webchat/message/search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"webchat",
+						"message",
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "JoinChat",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"chat_id\": \"d1e5f99d-758f-4ebc-8b9d-48cb85b1b153\",\r\n    \"member_id\": \"f5ccbd0f-4795-4cf8-8a12-eb356e338b5d\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{WEBCHAT_BASE_URL}}/chat/join",
+					"host": [
+						"{{WEBCHAT_BASE_URL}}"
+					],
+					"path": [
+						"chat",
+						"join"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetMemberChats",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{WEBCHAT_BASE_URL}}/member/chat/:id",
+					"host": [
+						"{{WEBCHAT_BASE_URL}}"
+					],
+					"path": [
+						"member",
+						"chat",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "e0afeb8b-307e-4a4d-a8f4-9c9f5e34b2b3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetChatMembers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{WEBCHAT_BASE_URL}}/chat/member/:id",
+					"host": [
+						"{{WEBCHAT_BASE_URL}}"
+					],
+					"path": [
+						"chat",
+						"member",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "d1e5f99d-758f-4ebc-8b9d-48cb85b1b153"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CentrifugoBroadcast",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-API-Key",
+						"value": "api_key",
+						"type": "text"
+					},
+					{
+						"key": "X-Centrifugo-Error-Mode",
+						"value": "transport",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"channels\": [\r\n        \"personal:1\", \"personal:2\"\r\n    ],\r\n    \"data\": {\r\n        \"type\": \"shit\",\r\n        \"sm\": \"sm\"\r\n    },\r\n    \"idempotency_key\": \"12345\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/broadcast",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"broadcast"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SendMessage",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"chat_id\": \"c04eacda-2d6e-4f98-bbc2-3fbcad3e81c5\",\r\n    \"author_id\": \"e0afeb8b-307e-4a4d-a8f4-9c9f5e34b2b3\",\r\n    \"content\": \"hello world3\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{WEBCHAT_BASE_URL}}/message",
+					"host": [
+						"{{WEBCHAT_BASE_URL}}"
+					],
+					"path": [
+						"message"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UploadFilesProd",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "files",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "{{WEBCHAT_BASE_URL}}/upload",
+					"host": [
+						"{{WEBCHAT_BASE_URL}}"
+					],
+					"path": [
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FileSearch",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"chat_id\": \"379ea606-92b7-46a8-a727-2faa3930f31f\",\r\n    \"detailed\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{WEBCHAT_BASE_URL}}/file/search",
+					"host": [
+						"{{WEBCHAT_BASE_URL}}"
+					],
+					"path": [
+						"file",
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LeaveChat",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"chat_id\": \"d1e5f99d-758f-4ebc-8b9d-48cb85b1b153\",\r\n    \"member_id\": \"e0afeb8b-307e-4a4d-a8f4-9c9f5e34b2b3\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{WEBCHAT_BASE_URL}}/chat/leave",
+					"host": [
+						"{{WEBCHAT_BASE_URL}}"
+					],
+					"path": [
+						"chat",
+						"leave"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

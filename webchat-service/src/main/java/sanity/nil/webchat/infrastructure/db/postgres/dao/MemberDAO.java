@@ -1,9 +1,9 @@
-package sanity.nil.webchat.infrastructure.db.impl;
+package sanity.nil.webchat.infrastructure.db.postgres.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import sanity.nil.webchat.infrastructure.db.model.MemberModel;
+import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
 
 import java.util.List;
 import java.util.UUID;

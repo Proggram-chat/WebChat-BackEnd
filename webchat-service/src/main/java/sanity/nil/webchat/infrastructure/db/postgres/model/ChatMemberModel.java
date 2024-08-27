@@ -1,4 +1,4 @@
-package sanity.nil.webchat.infrastructure.db.model;
+package sanity.nil.webchat.infrastructure.db.postgres.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,6 +28,12 @@ public class ChatMemberModel implements Serializable {
     private MemberModel member;
 
     @Column(name = "is_admin")
-    public boolean isAdmin;
+    private Boolean isAdmin;
 
+    public ChatMemberModel(ChatModel chat, MemberModel member, boolean isAdmin) {
+        this.id = new ChatMemberID(chat.getChatID(), member.getMemberID());
+        this.chat = chat;
+        this.member = member;
+        this.isAdmin = isAdmin;
+    }
 }

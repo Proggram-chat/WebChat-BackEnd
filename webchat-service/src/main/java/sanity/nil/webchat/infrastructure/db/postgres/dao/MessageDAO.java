@@ -1,13 +1,11 @@
-package sanity.nil.webchat.infrastructure.db.impl;
+package sanity.nil.webchat.infrastructure.db.postgres.dao;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import sanity.nil.webchat.application.dto.ChatMessageDTO;
-import sanity.nil.webchat.application.dto.MemberChatsDTO;
-import sanity.nil.webchat.application.dto.MessageFiltersDTO;
-import sanity.nil.webchat.infrastructure.db.model.MessageModel;
+import sanity.nil.webchat.infrastructure.db.postgres.model.MessageModel;
 
 import java.util.List;
 import java.util.UUID;

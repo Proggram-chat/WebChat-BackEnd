@@ -2,7 +2,6 @@ package sanity.nil.webchat.application.interfaces.repository;
 
 import sanity.nil.webchat.application.dto.ChatMessageDTO;
 import sanity.nil.webchat.application.dto.MessageFiltersDTO;
-import sanity.nil.webchat.infrastructure.db.model.MessageModel;
 
 import java.time.ZonedDateTime;
 import java.util.List;

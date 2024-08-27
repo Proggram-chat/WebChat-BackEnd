@@ -1,4 +1,4 @@
-package sanity.nil.webchat.infrastructure.db.model;
+package sanity.nil.webchat.infrastructure.db.postgres.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -13,11 +13,11 @@ import java.util.UUID;
 @Setter
 @Embeddable
 @EqualsAndHashCode
-public class ChatMemberID implements Serializable {
+public class MessageFileID implements Serializable {
 
-    @Column(name = "chat_id")
-    private UUID chatID;
-    @Column(name = "member_id")
-    private UUID memberID;
+    @Column(name = "message_id")
+    private UUID messageID;
+    @Column(name = "file_id")
+    private UUID fileID;
 
 }
