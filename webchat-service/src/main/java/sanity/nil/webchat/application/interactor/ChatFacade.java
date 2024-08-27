@@ -113,13 +113,27 @@ public class ChatFacade {
         return new PagedChatMessagesDTO(messages, totalPages, filters.offset+1);
     }
 
+    public ChatCreatedDTO createChat(CreateChatDTO createChatDTO) {
+        UUID chatID = chatRepository.createChat(createChatDTO);
+        return new ChatCreatedDTO(chatID);
+    }
+
+    public void deleteChat(UUID chatID) {
+        chatRepository.deleteChat(chatID);
+    }
+
+    public List<MemberChatsDTO> getAllMemberChats(UUID memberID) {
+        return chatRepository.getAllByMemberID(memberID);
+    }
+
     @Transactional
-    public UUID sendMessage(OnSendMessageDTO messageDTO) {
+    public MessageCreatedDTO sendMessage(OnSendMessageDTO messageDTO) {
         UUID newMessageID = UUID.randomUUID();
+        ZonedDateTime sentAt = ZonedDateTime.now();
         List<UUID> memberIDs = memberRepository.getAllByChatID(messageDTO.chatID()).stream()
                 .map(MemberModel::getMemberID).toList();
         List<String> channels = memberIDs.stream().map(e -> "personal:" + e.toString()).toList();
-        messageRepository.save(newMessageID, messageDTO.chatID(), messageDTO.authorID(), messageDTO.content(), ZonedDateTime.now());
+        messageRepository.save(newMessageID, messageDTO.chatID(), messageDTO.authorID(), messageDTO.content(), sentAt);
         centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
                 new MessageCreateDTO(newMessageID, messageDTO.chatID(), messageDTO.authorID(), messageDTO.content()),
                 "message-" + messageDTO.authorID().toString())
@@ -131,7 +145,7 @@ public class ChatFacade {
                     log.error("Error sending a message to centrifugo {}", err.getMessage());
                 }
         );
-        return newMessageID;
+        return new MessageCreatedDTO(newMessageID, sentAt);
     }
 
     public String getToken(String tokenType, String channel) {

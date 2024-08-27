@@ -35,6 +35,11 @@ public class ChatRepositoryImpl implements ChatRepository {
     }
 
     @Override
+    public void deleteChat(UUID chatID) {
+        chatDAO.deleteById(chatID);
+    }
+
+    @Override
     public boolean existsChat(UUID chatID) {
         return chatDAO.findById(chatID).isPresent();
     }

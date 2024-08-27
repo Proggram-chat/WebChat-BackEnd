@@ -16,7 +16,7 @@ public interface MessageDAO extends JpaRepository<MessageModel, UUID> {
             value = "SELECT new sanity.nil.webchat.application.dto.ChatMessageDTO(m.id, m.sender.memberID, m.content, m.receivedAt) " +
                     "FROM MessageModel m " +
                     "WHERE (:chatID IS NULL OR :chatID = m.chat.chatID) " +
-                    "AND (:message IS NULL OR LOWER(m.content) LIKE LOWER(CONCAT('%', :message, '%'))) " +
+                    "AND (:message IS NULL OR LOWER(CAST(m.content AS text)) LIKE LOWER(CAST(CONCAT('%', :message, '%') AS text))) " +
                     "ORDER BY m.receivedAt DESC"
     )
     List<ChatMessageDTO> findByFilters(
@@ -30,7 +30,7 @@ public interface MessageDAO extends JpaRepository<MessageModel, UUID> {
             value = "SELECT count(*) " +
                     "FROM MessageModel " +
                     "WHERE (:chatID IS NULL OR :chatID = chat.chatID) " +
-                    "AND (:message IS NULL OR LOWER(content) LIKE LOWER(CONCAT('%', :message, '%'))) "
+                    "AND (:message IS NULL OR LOWER(CAST(content AS text)) LIKE LOWER(CAST(CONCAT('%', :message, '%') AS text))) "
     )
     int countByFilters(
             @Param("chatID") UUID chatID,

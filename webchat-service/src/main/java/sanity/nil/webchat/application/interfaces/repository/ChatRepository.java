@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface ChatRepository {
     UUID createChat(CreateChatDTO dto);
+    void deleteChat(UUID chatID);
     boolean existsChat(UUID chatID);
     List<MemberChatsDTO> getAllByMemberID(UUID memberID);
     void addMember(UUID memberID, UUID chatID);

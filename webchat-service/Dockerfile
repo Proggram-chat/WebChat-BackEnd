@@ -5,7 +5,7 @@ COPY pom.xml .
 COPY webchat-service/ service/
 RUN cd service && chmod +x ./mvnw && ./mvnw clean package -DskipTests -DskipITs
 
-FROM openjdk:21-slim as builder
+FROM openjdk:21-slim AS builder
 WORKDIR /app
 COPY --from=build /app/service/target/webchat-service-0.0.1-SNAPSHOT.jar /app/webchat-service.jar
 RUN java -Djarmode=layertools -jar webchat-service.jar extract

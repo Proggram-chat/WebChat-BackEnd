@@ -8,29 +8,37 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import sanity.nil.webchat.application.dto.*;
-import sanity.nil.webchat.application.interfaces.repository.ChatRepository;
-import sanity.nil.webchat.application.interfaces.repository.MemberRepository;
 import sanity.nil.webchat.application.interactor.ChatFacade;
 
 import java.util.List;
 import java.util.UUID;
 
+import static org.springframework.http.HttpStatus.*;
+
 @RestController
-@RequestMapping("/api/webchat/v1")
+@RequestMapping("/api/v1")
 @Slf4j
 @CrossOrigin
 @RequiredArgsConstructor
 public class Controller {
 
-    private final ChatRepository chatRepository;
-    private final MemberRepository memberRepository;
     private final ChatFacade chatFacade;
 
     @PostMapping("/chat")
-    public ResponseEntity<UUID> createChat(@RequestBody CreateChatDTO dto) {
+    public ResponseEntity<ChatCreatedDTO> createChat(@RequestBody CreateChatDTO dto) {
         return ResponseEntity
-                .status(201)
-                .body(chatRepository.createChat(dto));
+                .status(CREATED)
+                .body(chatFacade.createChat(dto));
+    }
+
+    @DeleteMapping("/chat/{id}")
+    public ResponseEntity<Void> deleteChat(
+            @PathVariable UUID id
+    ) {
+        chatFacade.deleteChat(id);
+        return ResponseEntity
+                .status(NO_CONTENT)
+                .body(null);
     }
 
     @PostMapping("/chat/join")
@@ -39,7 +47,7 @@ public class Controller {
     ) {
         chatFacade.joinChat(dto);
         return ResponseEntity
-                .status(201)
+                .status(CREATED)
                 .body(null);
     }
 
@@ -49,27 +57,27 @@ public class Controller {
     ) {
         chatFacade.leaveChat(dto);
         return ResponseEntity
-                .status(204)
+                .status(NO_CONTENT)
                 .body(null);
     }
 
-    @GetMapping("/member/chat/{id}")
+    @GetMapping("/member/{id}/chats")
     public ResponseEntity<List<MemberChatsDTO>> getAllChatsByMember(
             @PathVariable("id") UUID memberID
     ) {
         return ResponseEntity
-                .status(200)
-                .body(chatRepository.getAllByMemberID(memberID));
+                .status(OK)
+                .body(chatFacade.getAllMemberChats(memberID));
     }
 
-    @GetMapping("/chat/member/{id}")
+    @GetMapping("/chat/{id}/members")
     public ResponseEntity<List<ChatMemberDTO>> getChatMembers(
             @RequestParam(value = "offset", required = false) Integer offset,
             @RequestParam(value = "limit", required = false) Integer limit,
             @PathVariable("id") UUID chatID
     ) {
         return ResponseEntity
-                .status(200)
+                .status(OK)
                 .body(chatFacade.getChatMembers(chatID));
     }
 
@@ -78,16 +86,16 @@ public class Controller {
             @RequestBody MessageFiltersDTO filters
     ) {
         return ResponseEntity
-                .status(200)
+                .status(OK)
                 .body(chatFacade.getFilteredMessages(filters));
     }
 
     @PostMapping("/message")
-    public ResponseEntity<UUID> sendMessage(
+    public ResponseEntity<MessageCreatedDTO> sendMessage(
             @RequestBody OnSendMessageDTO messageDTO
     ) {
         return ResponseEntity
-                .status(201)
+                .status(CREATED)
                 .body(chatFacade.sendMessage(messageDTO));
     }
 
@@ -97,7 +105,7 @@ public class Controller {
             @RequestParam(value = "channel", required = false) String channel
     ) {
         return ResponseEntity
-                .status(200)
+                .status(OK)
                 .body(chatFacade.getToken(tokenType, channel));
     }
 
@@ -106,7 +114,10 @@ public class Controller {
             @RequestPart("files") Flux<FilePart> files
     ) {
         return chatFacade.uploadFiles(files)
-                .map(response -> ResponseEntity.status(201).body(response));
+                .map(response -> ResponseEntity
+                        .status(CREATED)
+                        .body(response)
+                );
     }
 
 
@@ -116,7 +127,7 @@ public class Controller {
 
     ) {
         return ResponseEntity
-                .status(200)
+                .status(OK)
                 .body(chatFacade.fileSearch(fileSearchDTO));
     }
 }
