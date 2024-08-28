@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   postgres:
     image: postgres:16-alpine
@@ -13,16 +12,10 @@ services:
       timeout: 60s
       retries: 5
       start_period: 10s
-    ports:
-      - "127.0.0.1:5432:5432"
+    expose:
+      - "5432"
     volumes:
       - postgres.data:/var/lib/postgresql/users:rw
-    deploy:
-      mode: global
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 150M
 
   centrifugo:
     image: centrifugo/centrifugo:v5.4.2
@@ -33,48 +26,64 @@ services:
       retries: 5
       start_period: 10s
       timeout: 5s
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     volumes:
       - ./config/centrifugo/config.json:/centrifugo/config.json
 
   minio:
     image: quay.io/minio/minio:latest
-    command: server --address ":9000" --console-address ":9001" /data
+    command: server --address ":9000" --console-address ":9001" http://minio/minio.data{1...2}
     environment:
       - MINIO_ROOT_USER=Q3AM3UQ867SPQQA43P2F
       - MINIO_ROOT_PASSWORD=zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      test: [ "CMD", "mc", "ready", "local" ]
       interval: 30s
       timeout: 20s
       retries: 3
+    expose:
+      - "9000"
+      - "9001"
+    volumes:
+      - minio.data-1:/minio.data1
+      - minio.data-2:/minio.data2
+
+  nginx:
+    image: nginx:latest
+    restart: on-failure
     ports:
+      - "80:80"
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio.data:/data
-    deploy:
-      mode: global
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 150M
+      - ./config/nginx/conf.dev/:/etc/nginx/conf.d/
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
 
-#  nginx:
-#    image: nginx:latest
-#    restart: on-failure
-#    ports:
-#      - "80:80"
-#    volumes:
-#      - ./config/nginx/conf.d/:/etc/nginx/conf.d/
-#    deploy:
-#      mode: global
-#      resources:
-#        limits:
-#          cpus: '0.50'
-#          memory: 150M
+  webchat-service:
+    hostname: webchat-service
+    build:
+      context: .
+      dockerfile: webchat-service/Dockerfile
+    env_file:
+      - ./webchat-service/.env.dev
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+      interval: 20s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+    expose:
+      - "8080"
+    depends_on:
+      postgres:
+        condition: service_started
+      centrifugo:
+        condition: service_healthy
+      minio:
+        condition: service_started
 
 volumes:
   postgres.data: { }
-  minio.data: { }
+  minio.data-1: { }
+  minio.data-2: { }

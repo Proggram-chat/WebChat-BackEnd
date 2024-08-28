@@ -39,7 +39,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"limit\": 5,\r\n    \"offset\": 1,\r\n    \"chat_id\": \"d1e5f99d-758f-4ebc-8b9d-48cb85b1b153\",\r\n    \"message \": \"\"\r\n}",
+					"raw": "{\r\n    \"limit\": 5,\r\n    \"offset\": 0,\r\n    \"chat_id\": \"d1e5f99d-758f-4ebc-8b9d-48cb85b1b153\",\r\n    \"message \": \"\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -92,14 +92,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{WEBCHAT_BASE_URL}}/member/chat/:id",
+					"raw": "{{WEBCHAT_BASE_URL}}/member/:id/chats",
 					"host": [
 						"{{WEBCHAT_BASE_URL}}"
 					],
 					"path": [
 						"member",
-						"chat",
-						":id"
+						":id",
+						"chats"
 					],
 					"variable": [
 						{
@@ -117,14 +117,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{WEBCHAT_BASE_URL}}/chat/member/:id",
+					"raw": "{{WEBCHAT_BASE_URL}}/chat/:id/members",
 					"host": [
 						"{{WEBCHAT_BASE_URL}}"
 					],
 					"path": [
 						"chat",
-						"member",
-						":id"
+						":id",
+						"members"
 					],
 					"variable": [
 						{
@@ -238,6 +238,30 @@
 					"path": [
 						"chat",
 						"leave"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteChat",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{WEBCHAT_BASE_URL}}/chat/:id",
+					"host": [
+						"{{WEBCHAT_BASE_URL}}"
+					],
+					"path": [
+						"chat",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "d1e5f99d-758f-4ebc-8b9d-48cb85b1b153"
+						}
 					]
 				}
 			},
