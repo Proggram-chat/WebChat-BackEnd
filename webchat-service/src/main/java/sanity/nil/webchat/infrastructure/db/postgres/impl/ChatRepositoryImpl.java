@@ -3,15 +3,15 @@ package sanity.nil.webchat.infrastructure.db.postgres.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import sanity.nil.webchat.application.consts.MemberRoleType;
 import sanity.nil.webchat.application.dto.CreateChatDTO;
 import sanity.nil.webchat.application.dto.MemberChatsDTO;
 import sanity.nil.webchat.application.interfaces.repository.ChatRepository;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatDAO;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatMemberDAO;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.MemberDAO;
-import sanity.nil.webchat.infrastructure.db.postgres.model.ChatMemberID;
-import sanity.nil.webchat.infrastructure.db.postgres.model.ChatModel;
-import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
+import sanity.nil.webchat.infrastructure.db.postgres.dao.MemberRoleDAO;
+import sanity.nil.webchat.infrastructure.db.postgres.model.*;
 
 import java.util.*;
 
@@ -22,6 +22,7 @@ public class ChatRepositoryImpl implements ChatRepository {
     private final ChatDAO chatDAO;
     private final MemberDAO memberDAO;
     private final ChatMemberDAO chatMemberDAO;
+    private final MemberRoleDAO memberRoleDAO;
 
     @Override
     public UUID createChat(CreateChatDTO dto) {
@@ -29,9 +30,38 @@ public class ChatRepositoryImpl implements ChatRepository {
         if (maybeCreator.isEmpty()) {
             throw new NoSuchElementException("No member with ID: " + dto.creatorID());
         }
-        Set<MemberModel> members = new HashSet<>();
-        members.add(maybeCreator.get());
-        return chatDAO.save(new ChatModel(UUID.randomUUID(), dto.name(), dto.description(), members, dto.type())).getChatID();
+        ChatModel chat = new ChatModel(UUID.randomUUID(), dto.name(),
+                dto.description(), dto.type());
+        chatDAO.save(chat);
+
+        MemberRoleModel memberRoleModel = new MemberRoleModel(chat, MemberRoleType.MEMBER.name());
+        MemberRoleModel adminRoleModel = new MemberRoleModel(chat, MemberRoleType.ADMIN.name());
+        memberRoleDAO.save(memberRoleModel);
+        memberRoleDAO.save(adminRoleModel);
+
+        chat.addMemberRoles(memberRoleModel, adminRoleModel);
+        chat.addMember(new ChatMemberModel(chat, maybeCreator.get(), adminRoleModel));
+        return chatDAO.save(chat).getChatID();
+    }
+
+    @Override
+    public void removeMemberFromChat(UUID memberID, UUID chatID) {
+        chatMemberDAO.deleteById(new ChatMemberID(chatID, memberID));
+    }
+
+    @Override
+    public void addMemberToChat(UUID memberID, UUID chatID) {
+        ChatModel chat = chatDAO.findById(chatID).orElseThrow(
+                () -> new NoSuchElementException("No chat to add a member exists")
+        );
+        MemberModel memberToAdd = memberDAO.findById(memberID).orElseThrow(
+                () -> new NoSuchElementException("No such member exists to add")
+        );
+        Optional<MemberRoleModel> maybeRole = memberRoleDAO.findByChatIdAndType(chatID, MemberRoleType.MEMBER.name());
+        if (maybeRole.isEmpty()) {
+            throw new NoSuchElementException("No member role exists to add");
+        }
+        chatMemberDAO.save(new ChatMemberModel(chat, memberToAdd, maybeRole.get()));
     }
 
     @Override
@@ -47,26 +77,5 @@ public class ChatRepositoryImpl implements ChatRepository {
     @Override
     public List<MemberChatsDTO> getAllByMemberID(UUID memberID) {
         return chatDAO.findByMemberID(memberID);
-    }
-
-    @Transactional
-    @Override
-    public void addMember(UUID memberID, UUID chatID) {
-        Optional<ChatModel> maybeChat = chatDAO.findById(chatID);
-        if (maybeChat.isEmpty()) {
-            throw new NoSuchElementException("No member with ID: " + chatID);
-        }
-        Optional<MemberModel> maybeMember = memberDAO.findById(memberID);
-        if (maybeMember.isEmpty()) {
-            throw new NoSuchElementException("No member with ID: " + memberID);
-        }
-        maybeChat.get().addMember(maybeMember.get());
-        chatDAO.save(maybeChat.get()).getChatID();
-    }
-
-    @Transactional
-    @Override
-    public void deleteMember(UUID memberID, UUID chatID) {
-        chatMemberDAO.deleteById(new ChatMemberID(chatID, memberID));
     }
 }

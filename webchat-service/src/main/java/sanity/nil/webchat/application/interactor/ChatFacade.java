@@ -13,10 +13,7 @@ import sanity.nil.webchat.application.consts.FileUploadStatus;
 import sanity.nil.webchat.application.consts.TokenType;
 import sanity.nil.webchat.application.consts.UploadResult;
 import sanity.nil.webchat.application.dto.*;
-import sanity.nil.webchat.application.interfaces.repository.ChatRepository;
-import sanity.nil.webchat.application.interfaces.repository.FileMetadataRepository;
-import sanity.nil.webchat.application.interfaces.repository.MemberRepository;
-import sanity.nil.webchat.application.interfaces.repository.MessageRepository;
+import sanity.nil.webchat.application.interfaces.repository.*;
 import sanity.nil.webchat.infrastructure.db.postgres.model.FileMetadataModel;
 import sanity.nil.webchat.infrastructure.channels.dto.CentrifugoBroadcastPayload;
 import sanity.nil.webchat.infrastructure.channels.impl.CentrifugoHelper;
@@ -42,6 +39,7 @@ public class ChatFacade {
     private final MemberRepository memberRepository;
     private final MessageRepository messageRepository;
     private final FileMetadataRepository fileMetadataRepository;
+    private final MemberRoleRepository memberRoleRepository;
 
     private final CentrifugoHelper centrifugoHelper;
     private final TokenHelper tokenHelper;
@@ -49,16 +47,25 @@ public class ChatFacade {
     private final FileSystemHelper fileSystemHelper;
 
     @Transactional
+    public ChatCreatedDTO createChat(CreateChatDTO createChatDTO) {
+        UUID chatID = chatRepository.createChat(createChatDTO);
+        return new ChatCreatedDTO(chatID);
+    }
+
+    public void deleteChat(UUID chatID) {
+        chatRepository.deleteChat(chatID);
+    }
+
+    @Transactional
     public void joinChat(JoinChatDTO joinChatDTO) {
         MemberModel joinedMember = memberRepository.getByMemberID(joinChatDTO.memberID())
                 .orElseThrow(
                         () -> new NoSuchElementException("No member found with id " + joinChatDTO.memberID())
                 );
-        chatRepository.addMember(joinChatDTO.memberID(), joinChatDTO.chatID());
         List<UUID> members = memberRepository.getMemberIdsByChatID(joinChatDTO.chatID());
         List<String> channels = members.stream()
                 .map(e -> "personal:" + e.toString()).toList();
-        memberRepository.addMemberToChat(joinChatDTO.memberID(), joinChatDTO.chatID());
+        chatRepository.addMemberToChat(joinChatDTO.memberID(), joinChatDTO.chatID());
         centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
                 new OnJoinMemberDTO(joinChatDTO.memberID(), joinedMember.getNickname()),
                 "member_joined_" + joinChatDTO.memberID())
@@ -82,7 +89,7 @@ public class ChatFacade {
         List<UUID> members = memberRepository.getMemberIdsByChatID(leaveChatDTO.chatID());
         List<String> channels = members.stream()
                 .map(e -> "personal:" + e.toString()).toList();
-        memberRepository.removeMemberFromChat(leaveChatDTO.memberID(), leaveChatDTO.chatID());
+        chatRepository.removeMemberFromChat(leaveChatDTO.memberID(), leaveChatDTO.chatID());
         centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
                 new OnLeaveMemberDTO(leaveChatDTO.memberID(), leftMember.getNickname()),
                 "member_left_" + leaveChatDTO.memberID())
@@ -97,9 +104,7 @@ public class ChatFacade {
     }
 
     public List<ChatMemberDTO> getChatMembers(UUID chatID) {
-        return memberRepository.getAllByChatID(chatID)
-                .stream().map(e -> new ChatMemberDTO(e.getMemberID(), e.getNickname()))
-                .collect(Collectors.toList());
+        return memberRepository.getMembersByChatID(chatID);
     }
 
     public PagedChatMessagesDTO getFilteredMessages(MessageFiltersDTO filters) {
@@ -111,15 +116,6 @@ public class ChatFacade {
             totalPages = totalPages / filters.limit + 1;
         }
         return new PagedChatMessagesDTO(messages, totalPages, filters.offset+1);
-    }
-
-    public ChatCreatedDTO createChat(CreateChatDTO createChatDTO) {
-        UUID chatID = chatRepository.createChat(createChatDTO);
-        return new ChatCreatedDTO(chatID);
-    }
-
-    public void deleteChat(UUID chatID) {
-        chatRepository.deleteChat(chatID);
     }
 
     public List<MemberChatsDTO> getAllMemberChats(UUID memberID) {
@@ -172,6 +168,7 @@ public class ChatFacade {
         return tokenHelper.createToken(claims);
     }
 
+    @Transactional
     public Mono<UploadedFilesDTO> uploadFiles(Flux<FilePart> files) {
         return files
                 .publishOn(Schedulers.boundedElastic())
@@ -196,7 +193,7 @@ public class ChatFacade {
                                             filePart.headers().get("Content-Type").getFirst(),
                                             fileMetadataModel.getDirectory(), fileSize);
                                 }));
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         log.error("Got an error saving a file in local system.: {}", e.getMessage());
                         return Mono.just(new FileData(id.toString()));
                     }

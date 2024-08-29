@@ -8,5 +8,7 @@ public record ChatMemberDTO(
         @JsonProperty(value = "member_id")
         UUID memberID,
         @JsonProperty(value = "member_name")
-        String memberName
+        String memberName,
+        @JsonProperty(value = "role")
+        String role
 ) { }

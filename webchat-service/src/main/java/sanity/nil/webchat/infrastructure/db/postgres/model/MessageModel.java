@@ -19,7 +19,7 @@ public class MessageModel {
     @Column(name = "id")
     private UUID id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "chat_id", referencedColumnName = "id")
     private ChatModel chat;
 
@@ -33,6 +33,4 @@ public class MessageModel {
     @Column(name = "received_at", columnDefinition = "timestamptz")
     private ZonedDateTime receivedAt;
 
-//    @Column(name = "modifiedAt", columnDefinition = "timestamptz")
-//    private ZonedDateTime modifiedAt;
 }

@@ -1,5 +1,6 @@
 package sanity.nil.webchat.application.interfaces.repository;
 
+import sanity.nil.webchat.application.dto.ChatMemberDTO;
 import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
 
 import java.util.List;
@@ -11,6 +12,5 @@ public interface MemberRepository {
     List<MemberModel> getAllByChatID(UUID chatID);
     Optional<MemberModel> getByMemberID(UUID memberID);
     List<UUID> getMemberIdsByChatID(UUID chatID);
-    void removeMemberFromChat(UUID memberID, UUID chatID);
-    void addMemberToChat(UUID memberID, UUID chatID);
+    List<ChatMemberDTO> getMembersByChatID(UUID chatID);
 }

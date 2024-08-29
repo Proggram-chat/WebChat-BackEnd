@@ -2,6 +2,7 @@ package sanity.nil.webchat.infrastructure.db.postgres.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import sanity.nil.webchat.application.dto.ChatMemberDTO;
 import sanity.nil.webchat.application.interfaces.repository.MemberRepository;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatDAO;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatMemberDAO;
@@ -21,8 +22,6 @@ import java.util.UUID;
 public class MemberRepositoryImpl implements MemberRepository {
 
     private final MemberDAO memberDAO;
-    private final ChatDAO chatDAO;
-    private final ChatMemberDAO chatMemberDAO;
 
     @Override
     public UUID save(MemberModel member) {
@@ -45,18 +44,7 @@ public class MemberRepositoryImpl implements MemberRepository {
     }
 
     @Override
-    public void removeMemberFromChat(UUID memberID, UUID chatID) {
-        chatMemberDAO.deleteById(new ChatMemberID(chatID, memberID));
-    }
-
-    @Override
-    public void addMemberToChat(UUID memberID, UUID chatID) {
-        ChatModel chat = chatDAO.findById(chatID).orElseThrow(
-                () -> new NoSuchElementException("No chat to add a member exists")
-        );
-        MemberModel memberToAdd = memberDAO.findById(memberID).orElseThrow(
-                () -> new NoSuchElementException("No such member exists to add")
-        );
-        chatMemberDAO.save(new ChatMemberModel(chat, memberToAdd, false));
+    public List<ChatMemberDTO> getMembersByChatID(UUID chatID) {
+        return memberDAO.getAllMembersByChatID(chatID);
     }
 }

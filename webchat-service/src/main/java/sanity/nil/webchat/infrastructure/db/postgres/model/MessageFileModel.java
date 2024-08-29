@@ -17,7 +17,7 @@ public class MessageFileModel {
     @EmbeddedId
     private MessageFileID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @MapsId("messageID")
     private MessageModel message;
 

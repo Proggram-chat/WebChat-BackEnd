@@ -39,7 +39,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"limit\": 5,\r\n    \"offset\": 0,\r\n    \"chat_id\": \"d1e5f99d-758f-4ebc-8b9d-48cb85b1b153\",\r\n    \"message \": \"\"\r\n}",
+					"raw": "{\r\n    \"limit\": 5,\r\n    \"offset\": 0,\r\n    \"chat_id\": \"d1e5f99d-758f-4ebc-8b9d-48cb85b1b153\",\r\n    \"message\": \"hello\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -173,7 +173,7 @@
 						{
 							"key": "files",
 							"type": "file",
-							"src": []
+							"src": "/C:/Users/d2510/Downloads/never_audio.ogg"
 						}
 					]
 				},

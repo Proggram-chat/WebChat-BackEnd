@@ -27,13 +27,13 @@ public class ChatMemberModel implements Serializable {
     @MapsId("memberID")
     private MemberModel member;
 
-    @Column(name = "is_admin")
-    private Boolean isAdmin;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private MemberRoleModel memberRole;
 
-    public ChatMemberModel(ChatModel chat, MemberModel member, boolean isAdmin) {
+    public ChatMemberModel(ChatModel chat, MemberModel member, MemberRoleModel memberRole) {
         this.id = new ChatMemberID(chat.getChatID(), member.getMemberID());
         this.chat = chat;
         this.member = member;
-        this.isAdmin = isAdmin;
+        this.memberRole = memberRole;
     }
 }
