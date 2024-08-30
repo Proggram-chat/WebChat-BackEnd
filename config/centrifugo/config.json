@@ -1,5 +1,5 @@
 {
-  "log_level": "info",
+  "log_level": "debug",
   "allowed_origins": ["http://localhost:8080", "http://localhost:3000"],
   "token_hmac_secret_key": "secret_base64_key_for_jwt_centrifugo_connection",
   "api_key": "api_key",
