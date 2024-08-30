@@ -142,7 +142,7 @@ public class ChatFacade {
         messageRepository.save(newMessageID, messageDTO.chatID(), messageDTO.senderID(), messageDTO.content(), sentAt);
         centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
                 new MessageCreateDTO(newMessageID, messageDTO.chatID(), messageDTO.senderID(), messageDTO.content()),
-                "message-" + messageDTO.senderID().toString())
+                "message-" + newMessageID)
         ).subscribe(
                 res -> {
                     log.info("A message with id {}, successfully handed to centrifugo {}", newMessageID, res);
