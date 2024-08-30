@@ -27,14 +27,6 @@ public class ChatModel {
     @Column(name = "description")
     private String description;
 
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(
-//            name = "chat_members",
-//            joinColumns = @JoinColumn(name = "chat_id"),
-//            inverseJoinColumns = @JoinColumn(name = "member_id")
-//    )
-//    private Set<MemberModel> members = new HashSet<>();
-
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ChatMemberModel> chatMembers = new HashSet<>();
 

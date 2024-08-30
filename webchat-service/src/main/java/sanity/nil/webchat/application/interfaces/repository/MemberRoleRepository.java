@@ -7,6 +7,6 @@ import java.util.UUID;
 
 public interface MemberRoleRepository {
 
-    String addRoleType(UUID chatID, String roleType);
+    UUID addRoleType(UUID chatID, String roleType);
     Optional<MemberRoleModel> getByChatAndRoleType(UUID chatID, String roleType);
 }

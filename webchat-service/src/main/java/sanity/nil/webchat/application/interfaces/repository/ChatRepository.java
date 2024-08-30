@@ -13,4 +13,6 @@ public interface ChatRepository {
     List<MemberChatsDTO> getAllByMemberID(UUID memberID);
     void removeMemberFromChat(UUID memberID, UUID chatID);
     void addMemberToChat(UUID memberID, UUID chatID);
+    void addMemberChatRole(UUID memberID, UUID chatID, UUID roleID);
+    void deleteMemberChatRole(UUID memberID, UUID chatID);
 }

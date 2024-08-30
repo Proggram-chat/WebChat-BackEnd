@@ -40,9 +40,9 @@ public class OnSendMessageProcessor implements MessageProcessor<WebSocketSession
             if (!chatRepository.existsChat(onSendMessage.chatID())) {
                 throw new NoSuchElementException("Chat with ID " + onSendMessage.chatID() + " not found");
             }
-            return Mono.fromFuture(messageSender.sendMessageAsync(messageID, onSendMessage.authorID(), onSendMessage.chatID(), onSendMessage.content()))
+            return Mono.fromFuture(messageSender.sendMessageAsync(messageID, onSendMessage.senderID(), onSendMessage.chatID(), onSendMessage.content()))
                     .doOnNext(sent -> {
-                        messageRepository.save(sent.messageID(), onSendMessage.chatID(), onSendMessage.authorID(),
+                        messageRepository.save(sent.messageID(), onSendMessage.chatID(), onSendMessage.senderID(),
                                 onSendMessage.content(), sentAt);
                         log.info("Saved message with id: {}", sent.messageID());
                     })

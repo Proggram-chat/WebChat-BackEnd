@@ -78,4 +78,25 @@ public class ChatRepositoryImpl implements ChatRepository {
     public List<MemberChatsDTO> getAllByMemberID(UUID memberID) {
         return chatDAO.findByMemberID(memberID);
     }
+
+    @Override
+    public void addMemberChatRole(UUID memberID, UUID chatID, UUID roleID) {
+        MemberRoleModel memberRole = memberRoleDAO.findById(roleID)
+                .orElseThrow(() -> new NoSuchElementException("No such memberRole exists to add"));
+        ChatMemberModel chatMember = chatMemberDAO.findById(new ChatMemberID(chatID, memberID))
+                .orElseThrow(() -> new NoSuchElementException("No such chatMember exists"));
+        chatMember.setMemberRole(memberRole);
+        chatMemberDAO.save(chatMember);
+    }
+
+    @Override
+    public void deleteMemberChatRole(UUID memberID, UUID chatID) {
+        ChatMemberModel chatMember = chatMemberDAO.findById(new ChatMemberID(chatID, memberID))
+                .orElseThrow(() -> new NoSuchElementException("No such chatMember exists"));
+        MemberRoleModel memberRole =
+                new MemberRoleModel(chatMember.getChat(), MemberRoleType.MEMBER.name());
+        memberRoleDAO.save(memberRole);
+        chatMember.setMemberRole(memberRole);
+        chatMemberDAO.save(chatMember);
+    }
 }

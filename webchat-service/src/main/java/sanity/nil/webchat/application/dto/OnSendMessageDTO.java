@@ -7,8 +7,8 @@ import java.util.UUID;
 public record OnSendMessageDTO(
         @JsonProperty(value = "chat_id")
         UUID chatID,
-        @JsonProperty(value = "author_id")
-        UUID authorID,
+        @JsonProperty(value = "sender_id")
+        UUID senderID,
         @JsonProperty(value = "content")
         String content
 ) { }

@@ -21,13 +21,13 @@ public class MemberRoleRepositoryImpl implements MemberRoleRepository {
     private final ChatDAO chatDAO;
 
     @Override
-    public String addRoleType(UUID chatID, String roleType) {
+    public UUID addRoleType(UUID chatID, String roleType) {
         Optional<ChatModel> maybeChat = chatDAO.findById(chatID);
         if (maybeChat.isEmpty()) {
             throw new NoSuchElementException("No chat with ID: " + chatID);
         }
         MemberRoleModel newRoleModel = new MemberRoleModel(maybeChat.get(), roleType.toUpperCase());
-        return memberRoleDAO.save(newRoleModel).getRole();
+        return memberRoleDAO.save(newRoleModel).getId();
     }
 
     @Override

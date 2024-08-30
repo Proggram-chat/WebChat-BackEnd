@@ -24,11 +24,9 @@ import sanity.nil.webchat.infrastructure.storage.s3.FileData;
 import sanity.nil.webchat.infrastructure.storage.s3.FileStorage;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -103,6 +101,18 @@ public class ChatFacade {
         );
     }
 
+    public UUID addChatRole(AddChatRoleDTO dto) {
+        return memberRoleRepository.addRoleType(dto.chatID(), dto.roleType());
+    }
+
+    public void addMemberRole(AddMemberRoleDTO dto) {
+        chatRepository.addMemberChatRole(dto.memberID(), dto.chatID(), dto.roleID());
+    }
+
+    public void deleteMemberRole(DeleteMemberRoleDTO dto) {
+        chatRepository.deleteMemberChatRole(dto.memberID(), dto.chatID());
+    }
+
     public List<ChatMemberDTO> getChatMembers(UUID chatID) {
         return memberRepository.getMembersByChatID(chatID);
     }
@@ -129,10 +139,10 @@ public class ChatFacade {
         List<UUID> memberIDs = memberRepository.getAllByChatID(messageDTO.chatID()).stream()
                 .map(MemberModel::getMemberID).toList();
         List<String> channels = memberIDs.stream().map(e -> "personal:" + e.toString()).toList();
-        messageRepository.save(newMessageID, messageDTO.chatID(), messageDTO.authorID(), messageDTO.content(), sentAt);
+        messageRepository.save(newMessageID, messageDTO.chatID(), messageDTO.senderID(), messageDTO.content(), sentAt);
         centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
-                new MessageCreateDTO(newMessageID, messageDTO.chatID(), messageDTO.authorID(), messageDTO.content()),
-                "message-" + messageDTO.authorID().toString())
+                new MessageCreateDTO(newMessageID, messageDTO.chatID(), messageDTO.senderID(), messageDTO.content()),
+                "message-" + messageDTO.senderID().toString())
         ).subscribe(
                 res -> {
                     log.info("A message with id {}, successfully handed to centrifugo {}", newMessageID, res);
@@ -144,10 +154,10 @@ public class ChatFacade {
         return new MessageCreatedDTO(newMessageID, sentAt);
     }
 
-    public String getToken(String tokenType, String channel) {
+    public String getToken(TokenType tokenType, String channel) {
         // "personal:{userID}"
         Map<String, Object> claims = new HashMap<>();
-        switch (TokenType.valueOf(tokenType)) {
+        switch (tokenType) {
             case CONNECTION -> {
                 // TODO: channel isn't needed here, we should understand which user it is for from IdentityProvider
                 log.info(channel.substring(channel.lastIndexOf(":") + 1));

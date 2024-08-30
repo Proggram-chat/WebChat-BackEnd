@@ -17,7 +17,7 @@ public interface MessageDAO extends JpaRepository<MessageModel, UUID> {
                     "FROM MessageModel m " +
                     "WHERE (:chatID IS NULL OR :chatID = m.chat.chatID) " +
                     "AND (:message IS NULL OR LOWER(CAST(m.content AS text)) LIKE LOWER(CAST(CONCAT('%', :message, '%') AS text))) " +
-                    "ORDER BY m.receivedAt DESC"
+                    "ORDER BY m.receivedAt ASC"
     )
     List<ChatMessageDTO> findByFilters(
             @Param("chatID") UUID chatID,

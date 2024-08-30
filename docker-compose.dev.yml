@@ -26,8 +26,8 @@ services:
       retries: 5
       start_period: 10s
       timeout: 5s
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
     volumes:
       - ./config/centrifugo/config.json:/centrifugo/config.json
 
