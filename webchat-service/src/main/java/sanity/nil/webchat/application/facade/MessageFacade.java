@@ -67,18 +67,26 @@ public class MessageFacade {
 
         MessageModel message = messageRepository.save(newMessageID, messageDTO.chatID(),
                 messageDTO.senderID(), messageDTO.content(), sentAt);
-        List<FileMetadataModel> files = fileMetadataRepository.findByIds(
-                messageDTO.attachments().stream()
-                        .map(UUID::fromString)
-                        .toList()
-        );
-        List<MessageFileModel> messageFiles = files.stream().map(e ->
-                new MessageFileModel(newMessageID, e.getId(), message, e)
-        ).toList();
-        messageFileRepository.saveAll(messageFiles);
+        List<AttachmentDTO> attachments = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(messageDTO.attachments())) {
+            List<FileMetadataModel> files = fileMetadataRepository.findByIds(
+                    messageDTO.attachments().stream()
+                            .map(UUID::fromString)
+                            .toList()
+            );
+            List<MessageFileModel> messageFiles = files.stream().map(e ->
+                    new MessageFileModel(newMessageID, e.getId(), message, e)
+            ).toList();
+            messageFileRepository.saveAll(messageFiles);
+            files.forEach(e -> {
+                String url = fileStorage.getFileURL(e.getId().toString(), e.getDirectory());
+                attachments.add(new AttachmentDTO(e.getId(), url));
+            });
+        }
 
         centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
-                new MessageCreateDTO(newMessageID, messageDTO.chatID(), messageDTO.senderID(), messageDTO.content()),
+                new MessageCreateDTO(newMessageID, messageDTO.chatID(), messageDTO.senderID(),
+                        messageDTO.content(), attachments),
                 "message-" + newMessageID)
         ).subscribe(
                 res -> {

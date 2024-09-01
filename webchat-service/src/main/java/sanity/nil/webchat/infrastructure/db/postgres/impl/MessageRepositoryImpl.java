@@ -42,6 +42,13 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public MessageModel findById(UUID messageID) {
+        return messageDAO.findById(messageID).orElseThrow(
+                () -> new NoSuchElementException("No message with such id found")
+        );
+    }
+
+    @Override
     public List<MessageDetailedView> getByFilters(MessageFiltersDTO filtersDTO) {
         Pageable pageable = PageRequest.of(filtersDTO.offset, filtersDTO.limit);
         return messageDAO.findByFilters(filtersDTO.chatID, filtersDTO.message, pageable);
