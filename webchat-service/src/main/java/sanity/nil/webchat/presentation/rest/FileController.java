@@ -3,6 +3,7 @@ package sanity.nil.webchat.presentation.rest;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class FileController {
 
     private final FileFacade fileFacade;
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseEntity<UploadedFilesDTO>> uploadFiles(
             @RequestPart("files") Flux<FilePart> files
     ) {
