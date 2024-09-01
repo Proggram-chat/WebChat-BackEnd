@@ -1,5 +1,6 @@
 package sanity.nil.webchat.application.dto.message;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.checkerframework.checker.units.qual.A;
 import sanity.nil.webchat.application.consts.PayloadType;
 import sanity.nil.webchat.infrastructure.channels.dto.CentrifugoPayloadBase;
@@ -7,6 +8,7 @@ import sanity.nil.webchat.infrastructure.channels.dto.CentrifugoPayloadBase;
 import java.util.List;
 import java.util.UUID;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class MessageCreateDTO extends CentrifugoPayloadBase {
 
     public UUID id;

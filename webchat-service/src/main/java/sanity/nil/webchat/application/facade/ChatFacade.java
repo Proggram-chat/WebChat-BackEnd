@@ -51,9 +51,10 @@ public class ChatFacade {
         List<String> channels = members.stream()
                 .map(e -> "personal:" + e.toString()).toList();
         chatRepository.addMemberToChat(joinChatDTO.memberID(), joinChatDTO.chatID());
+        String idempotencyKey = String.format("member.%s.joined.%s", joinChatDTO.memberID(), joinChatDTO.chatID());
         centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
                 new OnJoinMemberDTO(joinChatDTO.memberID(), joinedMember.getNickname()),
-                "member_joined_" + joinChatDTO.memberID())
+                idempotencyKey)
         ).subscribe(
                 res -> {
                     log.info("A user {} joined chat {}, successfully handed to centrifugo {}",
@@ -75,9 +76,10 @@ public class ChatFacade {
         List<String> channels = members.stream()
                 .map(e -> "personal:" + e.toString()).toList();
         chatRepository.removeMemberFromChat(leaveChatDTO.memberID(), leaveChatDTO.chatID());
+        String idempotencyKey = String.format("member.%s.left.%s", leaveChatDTO.memberID(), leaveChatDTO.chatID());
         centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
                 new OnLeaveMemberDTO(leaveChatDTO.memberID(), leftMember.getNickname()),
-                "member_left_" + leaveChatDTO.memberID())
+                idempotencyKey)
         ).subscribe(
                 res -> {
                     log.info("A user {} left chat {}, successfully handed to centrifugo {}",

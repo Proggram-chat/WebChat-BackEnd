@@ -84,10 +84,11 @@ public class MessageFacade {
             });
         }
 
+        String idempotencyKey = String.format("message.%s.created", newMessageID);
         centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
                 new MessageCreateDTO(newMessageID, messageDTO.chatID(), messageDTO.senderID(),
                         messageDTO.content(), attachments),
-                "message-" + newMessageID)
+                idempotencyKey)
         ).subscribe(
                 res -> {
                     log.info("A message with id {}, successfully handed to centrifugo {}", newMessageID, res);
@@ -101,6 +102,26 @@ public class MessageFacade {
 
     @Transactional
     public void modifyMessage(OnModifyMessageDTO messageDTO) {
+        List<UUID> memberIDs = memberRepository.getAllByChatID(messageDTO.chatID()).stream()
+                .map(MemberModel::getMemberID).toList();
+        List<String> channels = memberIDs.stream().map(e -> "personal:" + e.toString()).toList();
 
+        MessageModel existingMessage = messageRepository.findById(messageDTO.messageID());
+        existingMessage.setContent(messageDTO.content());
+        messageRepository.save(existingMessage);
+
+        String idempotencyKey = String.format("message.%s.modified", messageDTO.messageID());
+        centrifugoHelper.broadcast(new CentrifugoBroadcastPayload(channels,
+                new MessageModifyDTO(messageDTO.messageID(), messageDTO.chatID(), existingMessage.getSender().getMemberID(),
+                        messageDTO.content()),
+                idempotencyKey)
+        ).subscribe(
+                res -> {
+                    log.info("A message with id {}, successfully handed to centrifugo {}", messageDTO.messageID(), res);
+                },
+                err -> {
+                    log.error("Error sending a message to centrifugo {}", err.getMessage());
+                }
+        );
     }
 }

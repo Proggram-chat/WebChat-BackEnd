@@ -42,6 +42,11 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public void save(MessageModel message) {
+        messageDAO.save(message);
+    }
+
+    @Override
     public MessageModel findById(UUID messageID) {
         return messageDAO.findById(messageID).orElseThrow(
                 () -> new NoSuchElementException("No message with such id found")

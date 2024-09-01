@@ -7,6 +7,8 @@ import java.util.UUID;
 public record OnModifyMessageDTO(
         @JsonProperty(value = "message_id")
         UUID messageID,
+        @JsonProperty(value = "chat_id")
+        UUID chatID,
         @JsonProperty(value = "content")
         String content
 ) { }
