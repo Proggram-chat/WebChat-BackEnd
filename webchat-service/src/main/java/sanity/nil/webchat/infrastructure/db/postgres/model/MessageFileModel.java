@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -24,4 +26,11 @@ public class MessageFileModel {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("fileID")
     private FileMetadataModel file;
+
+    public MessageFileModel(UUID messageID, UUID fileId,
+                            MessageModel message, FileMetadataModel file) {
+        this.id = new MessageFileID(messageID, fileId);
+        this.message = message;
+        this.file = file;
+    }
 }

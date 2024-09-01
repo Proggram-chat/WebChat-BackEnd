@@ -2,18 +2,12 @@ package sanity.nil.webchat.infrastructure.db.postgres.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import sanity.nil.webchat.application.dto.ChatMemberDTO;
+import sanity.nil.webchat.application.dto.chat.ChatMemberDTO;
 import sanity.nil.webchat.application.interfaces.repository.MemberRepository;
-import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatDAO;
-import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatMemberDAO;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.MemberDAO;
-import sanity.nil.webchat.infrastructure.db.postgres.model.ChatMemberID;
-import sanity.nil.webchat.infrastructure.db.postgres.model.ChatMemberModel;
-import sanity.nil.webchat.infrastructure.db.postgres.model.ChatModel;
 import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 

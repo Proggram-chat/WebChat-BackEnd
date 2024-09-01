@@ -2,7 +2,6 @@ package sanity.nil.webchat.infrastructure.channels.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 public record CentrifugoResponseDTO(
         ErrorResponse error,

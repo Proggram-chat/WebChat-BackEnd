@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
@@ -21,7 +20,7 @@ import sanity.nil.webchat.presentation.websocket.impl.MessageProcessorRouter;
 import java.io.IOException;
 import java.util.UUID;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 @Slf4j
 public class ChatController implements WebSocketHandler {

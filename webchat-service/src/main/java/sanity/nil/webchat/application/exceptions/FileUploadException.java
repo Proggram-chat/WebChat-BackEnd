@@ -2,9 +2,6 @@ package sanity.nil.webchat.application.exceptions;
 
 import lombok.Getter;
 
-import java.util.List;
-import java.util.UUID;
-
 @Getter
 public class FileUploadException extends RuntimeException {
 

@@ -10,9 +10,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.netty.http.client.HttpClient;
 import reactor.util.retry.Retry;
+import sanity.nil.webchat.application.exceptions.CentrifugoException;
 import sanity.nil.webchat.infrastructure.channels.dto.CentrifugoBroadcastPayload;
 import sanity.nil.webchat.infrastructure.channels.dto.CentrifugoResponseDTO;
-import sanity.nil.webchat.application.exceptions.CentrifugoException;
 
 import java.time.Duration;
 

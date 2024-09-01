@@ -3,7 +3,7 @@ package sanity.nil.webchat.infrastructure.db.postgres.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import sanity.nil.webchat.application.dto.ChatMemberDTO;
+import sanity.nil.webchat.application.dto.chat.ChatMemberDTO;
 import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
 
 import java.util.List;
@@ -34,7 +34,8 @@ public interface MemberDAO extends JpaRepository<MemberModel, UUID> {
     );
 
     @Query(
-            value = "SELECT new sanity.nil.webchat.application.dto.ChatMemberDTO(m.memberID, m.nickname, cm.memberRole.role) " +
+            value = "SELECT new sanity.nil.webchat.application.dto.chat.ChatMemberDTO(m.memberID, m.nickname, " +
+                    "cm.memberRole.role, cm.memberRole.functions) " +
                     "FROM MemberModel m " +
                     "LEFT JOIN ChatMemberModel cm " +
                     "ON m.memberID = cm.member.memberID " +

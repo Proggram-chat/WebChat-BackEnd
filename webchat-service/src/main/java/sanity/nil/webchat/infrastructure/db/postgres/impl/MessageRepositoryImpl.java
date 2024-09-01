@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import sanity.nil.webchat.application.dto.ChatMessageDTO;
-import sanity.nil.webchat.application.dto.MessageFiltersDTO;
+import sanity.nil.webchat.application.dto.message.MessageFiltersDTO;
 import sanity.nil.webchat.application.interfaces.repository.MessageRepository;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatDAO;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.MemberDAO;
@@ -13,6 +12,7 @@ import sanity.nil.webchat.infrastructure.db.postgres.dao.MessageDAO;
 import sanity.nil.webchat.infrastructure.db.postgres.model.ChatModel;
 import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
 import sanity.nil.webchat.infrastructure.db.postgres.model.MessageModel;
+import sanity.nil.webchat.infrastructure.db.postgres.projections.MessageDetailedView;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -29,7 +29,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     private final ChatDAO chatDAO;
 
     @Override
-    public void save(UUID messageID, UUID chatID, UUID senderID, String content, ZonedDateTime sentAt) {
+    public MessageModel save(UUID messageID, UUID chatID, UUID senderID, String content, ZonedDateTime sentAt) {
         Optional<ChatModel> maybeChat = chatDAO.findById(chatID);
         if (maybeChat.isEmpty()) {
             throw new NoSuchElementException("Chat with ID " + chatID + " does not exist");
@@ -38,11 +38,11 @@ public class MessageRepositoryImpl implements MessageRepository {
         if (maybeMember.isEmpty()) {
             throw new NoSuchElementException("Member with ID " + senderID + " does not exist");
         }
-        messageDAO.save(new MessageModel(messageID, maybeChat.get(), maybeMember.get(), content, sentAt));
+        return messageDAO.save(new MessageModel(messageID, maybeChat.get(), maybeMember.get(), content, sentAt));
     }
 
     @Override
-    public List<ChatMessageDTO> getByFilters(MessageFiltersDTO filtersDTO) {
+    public List<MessageDetailedView> getByFilters(MessageFiltersDTO filtersDTO) {
         Pageable pageable = PageRequest.of(filtersDTO.offset, filtersDTO.limit);
         return messageDAO.findByFilters(filtersDTO.chatID, filtersDTO.message, pageable);
     }

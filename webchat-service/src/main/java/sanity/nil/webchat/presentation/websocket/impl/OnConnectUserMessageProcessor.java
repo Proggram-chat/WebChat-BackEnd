@@ -4,18 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import sanity.nil.webchat.application.dto.OnConnectMessageDTO;
+import sanity.nil.webchat.application.dto.message.OnConnectMessageDTO;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
-@Component
+//@Component
 @Slf4j
 @RequiredArgsConstructor
 public class OnConnectUserMessageProcessor implements MessageProcessor<WebSocketSession, WebSocketMessage> {

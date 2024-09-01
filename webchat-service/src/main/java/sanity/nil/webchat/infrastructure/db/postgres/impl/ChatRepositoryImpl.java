@@ -1,11 +1,9 @@
 package sanity.nil.webchat.infrastructure.db.postgres.impl;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import sanity.nil.webchat.application.consts.MemberRoleType;
-import sanity.nil.webchat.application.dto.CreateChatDTO;
-import sanity.nil.webchat.application.dto.MemberChatsDTO;
+import sanity.nil.webchat.application.dto.chat.CreateChatDTO;
+import sanity.nil.webchat.application.dto.chat.MemberChatsDTO;
 import sanity.nil.webchat.application.interfaces.repository.ChatRepository;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatDAO;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.ChatMemberDAO;
@@ -13,7 +11,13 @@ import sanity.nil.webchat.infrastructure.db.postgres.dao.MemberDAO;
 import sanity.nil.webchat.infrastructure.db.postgres.dao.MemberRoleDAO;
 import sanity.nil.webchat.infrastructure.db.postgres.model.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
+
+import static sanity.nil.webchat.application.consts.MemberRoleType.ADMIN;
+import static sanity.nil.webchat.application.consts.MemberRoleType.MEMBER;
 
 @Repository
 @RequiredArgsConstructor
@@ -34,8 +38,8 @@ public class ChatRepositoryImpl implements ChatRepository {
                 dto.description(), dto.type());
         chatDAO.save(chat);
 
-        MemberRoleModel memberRoleModel = new MemberRoleModel(chat, MemberRoleType.MEMBER.name());
-        MemberRoleModel adminRoleModel = new MemberRoleModel(chat, MemberRoleType.ADMIN.name());
+        MemberRoleModel memberRoleModel = new MemberRoleModel(chat, MEMBER.name(), MEMBER.getFunctions());
+        MemberRoleModel adminRoleModel = new MemberRoleModel(chat, ADMIN.name(), ADMIN.getFunctions());
         memberRoleDAO.save(memberRoleModel);
         memberRoleDAO.save(adminRoleModel);
 
@@ -57,7 +61,7 @@ public class ChatRepositoryImpl implements ChatRepository {
         MemberModel memberToAdd = memberDAO.findById(memberID).orElseThrow(
                 () -> new NoSuchElementException("No such member exists to add")
         );
-        Optional<MemberRoleModel> maybeRole = memberRoleDAO.findByChatIdAndType(chatID, MemberRoleType.MEMBER.name());
+        Optional<MemberRoleModel> maybeRole = memberRoleDAO.findByChatIdAndType(chatID, MEMBER.name());
         if (maybeRole.isEmpty()) {
             throw new NoSuchElementException("No member role exists to add");
         }
@@ -93,9 +97,8 @@ public class ChatRepositoryImpl implements ChatRepository {
     public void deleteMemberChatRole(UUID memberID, UUID chatID) {
         ChatMemberModel chatMember = chatMemberDAO.findById(new ChatMemberID(chatID, memberID))
                 .orElseThrow(() -> new NoSuchElementException("No such chatMember exists"));
-        MemberRoleModel memberRole =
-                new MemberRoleModel(chatMember.getChat(), MemberRoleType.MEMBER.name());
-        memberRoleDAO.save(memberRole);
+        MemberRoleModel memberRole = memberRoleDAO.findByChatIdAndType(chatID, MEMBER.name())
+                .orElseThrow(() -> new NoSuchElementException("No default memberRole exists for this chat"));
         chatMember.setMemberRole(memberRole);
         chatMemberDAO.save(chatMember);
     }

@@ -17,6 +17,7 @@ import java.util.UUID;
 public class MemberRoleModel {
 
     @Id
+    @Column(name = "id")
     private UUID id;
 
     @ManyToOne
@@ -25,9 +26,13 @@ public class MemberRoleModel {
     @Column(name = "role", nullable = false)
     private String role;
 
-    public MemberRoleModel(ChatModel chat, String role) {
+    @Column(name = "functions")
+    private String functions;
+
+    public MemberRoleModel(ChatModel chat, String role, String functions) {
         this.id = UUID.randomUUID();
         this.chat = chat;
         this.role = role;
+        this.functions = functions;
     }
 }

@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import sanity.nil.webchat.application.consts.FileProcessStatus;
 import sanity.nil.webchat.application.consts.FileType;
-import sanity.nil.webchat.application.consts.FileUploadStatus;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -31,8 +31,8 @@ public class FileMetadataModel {
     private FileType type;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "upload_status")
-    private FileUploadStatus uploadStatus;
+    @Column(name = "process_status")
+    private FileProcessStatus processStatus;
 
     @Column(name = "directory")
     private String directory;
@@ -54,10 +54,10 @@ public class FileMetadataModel {
         updatedAt = ZonedDateTime.now();
     }
 
-    public FileMetadataModel(UUID id, String filename, FileType type, FileUploadStatus uploadStatus) {
+    public FileMetadataModel(UUID id, String filename, FileType type, FileProcessStatus processStatus) {
         this.id = id;
         this.filename = filename;
         this.type = type;
-        this.uploadStatus = uploadStatus;
+        this.processStatus = processStatus;
     }
 }

@@ -1,7 +1,7 @@
 package sanity.nil.webchat.application.interfaces.repository;
 
-import sanity.nil.webchat.application.dto.CreateChatDTO;
-import sanity.nil.webchat.application.dto.MemberChatsDTO;
+import sanity.nil.webchat.application.dto.chat.CreateChatDTO;
+import sanity.nil.webchat.application.dto.chat.MemberChatsDTO;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,13 +1,12 @@
 package sanity.nil.webchat.infrastructure.storage.keyval;
 
-import org.springframework.stereotype.Component;
 import sanity.nil.webchat.application.interfaces.storage.MemberSession;
 import sanity.nil.webchat.application.interfaces.storage.MemberSessionStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
+//@Component
 public class KeyValMemberSessionStorage implements MemberSessionStorage {
 
     private List<WebsocketMemberSession> storage = Collections.synchronizedList(new ArrayList<>());

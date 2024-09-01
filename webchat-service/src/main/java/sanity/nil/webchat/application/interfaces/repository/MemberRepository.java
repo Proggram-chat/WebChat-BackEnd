@@ -1,6 +1,6 @@
 package sanity.nil.webchat.application.interfaces.repository;
 
-import sanity.nil.webchat.application.dto.ChatMemberDTO;
+import sanity.nil.webchat.application.dto.chat.ChatMemberDTO;
 import sanity.nil.webchat.infrastructure.db.postgres.model.MemberModel;
 
 import java.util.List;
