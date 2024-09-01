@@ -79,7 +79,7 @@ services:
   nginx:
     build:
       context: config/nginx
-      dockerfile: config/nginx/Dockerfile-prod
+      dockerfile: Dockerfile-prod
     restart: on-failure
     ports:
       - "80:80"
@@ -96,7 +96,7 @@ services:
       context: .
       dockerfile: webchat-service/Dockerfile
     env_file:
-      - ./webchat-service/.env
+      - ./webchat-service/.env.prod
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
       interval: 20s

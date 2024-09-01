@@ -41,21 +41,20 @@ public class FileFacade {
                     log.info("Received a file: {}", filePart.filename());
                     UUID id = UUID.randomUUID();
                     try {
-                        // save without a filetype and to
-                        FileMetadataModel fileMetadataModel = new FileMetadataModel(id, filePart.filename(),
-                                fileSystemHelper.evaluateFileType(filePart.headers().getContentType()), FileProcessStatus.AWAITING_UPLOAD);
-                        fileMetadataModel.setDirectory(fileSystemHelper.getDestDirectory(fileMetadataModel.getType()));
-                        fileMetadataRepository.save(fileMetadataModel);
 
-                        // create a scheduler to clear temp files that are uploaded
                         File fileOnFS = Files.createFile(Path.of(fileSystemHelper.getTempDirPath() + id + '.' +
                                 StringUtils.substringAfterLast(filePart.filename(), "."))).toFile();
+
+                        FileMetadataModel fileMetadataModel = new FileMetadataModel(id, filePart.filename(),
+                                fileSystemHelper.evaluateFileType(fileOnFS), FileProcessStatus.AWAITING_UPLOAD);
+                        fileMetadataModel.setDirectory(fileSystemHelper.getDestDirectory(fileMetadataModel.getType()));
+                        fileMetadataRepository.save(fileMetadataModel);
 
                         return filePart.transferTo(fileOnFS)
                                 .then(Mono.fromCallable(() -> {
                                     long fileSize = Files.size(fileOnFS.toPath());
                                     return new FileData(id.toString(), fileOnFS,
-                                            filePart.headers().get("Content-Type").getFirst(),
+                                            fileSystemHelper.evaluateContentType(fileOnFS),
                                             fileMetadataModel.getDirectory(), fileSize);
                                 }));
                     } catch (Exception e) {

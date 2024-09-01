@@ -88,6 +88,9 @@ public class MinioFileStorage implements FileStorage {
                             .expiry(2, TimeUnit.HOURS)
                             .versionId(null)
                             .build());
+            if (url.contains("nginx")) {
+                url = url.replace("nginx", "localhost");
+            }
         } catch (Exception e) {
             throw new StorageException(e.getMessage());
         }
